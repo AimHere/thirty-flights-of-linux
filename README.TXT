@@ -82,10 +82,7 @@ Mouse doesn't work properly in fullscreen
 
 Loading and/or Saving doesn't work in Gravity Bone
 
-Sporadic Crash when entering plane/Apartment in TFOL
-
-Sound doesn't work on all systems
-
+Crash when entering Anita's apartment in TFOL
 
 TODO
 
