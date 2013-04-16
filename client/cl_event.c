@@ -161,7 +161,6 @@ void CL_FootSteps (entity_state_t *ent, qboolean loud, int limit)
 		return;
 	surface = tr.surface->flags & SURF_STEPMASK;
 
-	Com_Printf("Surface: %x\n",tr.surface->flags);
 	switch (surface)
 	{
 	case SURF_METAL:
@@ -208,7 +207,6 @@ void CL_FootSteps (entity_state_t *ent, qboolean loud, int limit)
 		volume = 1.0;
 		break;
 	default:
-		Com_Printf("Fallthrough footstep: SURF: %x\n",tr.surface);
 		if (cl_footstep_override->value && num_texsurfs)
 		{
 			int	i;
