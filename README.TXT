@@ -7,8 +7,8 @@ both from Blendo Games. If they work with other versions,
 then that's a nice bonus.
 
 Various little bits of code here and there have been fiddled around
-with in order to make this run on Linux. Therefore any bugs other 
-inadequacies present in this code might well be my fault and not 
+with in order to make this run on Linux. Therefore any bugs and/or
+other inadequacies present in this code might well be my fault and not 
 those of any of the previous authors, though they'll retain their
 copyrights in the code, where appropriate.
 
@@ -71,6 +71,7 @@ libxxf86dga
 libxxf86vm
 libX11
 libpng
+libsvga
 
 -----
 
@@ -82,10 +83,11 @@ Mouse doesn't work properly in fullscreen
 
 Loading and/or Saving doesn't work in Gravity Bone
 
-Sporadic Crash when entering plane/Apartment in TFOL
+Crash bug when entering plane/Apartment in TFOL
 
-Sound doesn't work on all systems
+Sound delay on some systems
 
+Shadows don't look good
 
 TODO
 
@@ -96,3 +98,5 @@ Find people to test this on
 Cut down on indirection with the RW_IN_foo_fp files
 
 Use the system SDL libraries, instead of bundling them
+
+Build and run a 64-bit binary

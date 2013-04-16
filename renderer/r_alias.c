@@ -708,6 +708,7 @@ void R_DrawAliasPlanarShadow (maliasmodel_t *paliashdr)
 
 	GL_Stencil (true, false);
 	GL_BlendFunc (GL_SRC_ALPHA_SATURATE, GL_ONE_MINUS_SRC_ALPHA);
+//	GL_BlendFunc (GL_SRC_ALPHA, GL_SRC_ALPHA); 
 
 	rb_vertex = rb_index = 0;
 	for (i=0; i<paliashdr->num_meshes; i++) 

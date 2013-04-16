@@ -1017,7 +1017,7 @@ qboolean R_SetMode (void)
 	if ( vid_fullscreen->modified && !gl_config.allowCDS )
 	{
 		VID_Printf( PRINT_ALL, "R_SetMode() - CDS not allowed with this driver\n" );
-		Cvar_SetValue( "vid_fullscreen", !vid_fullscreen->value );
+		//Cvar_SetValue( "vid_fullscreen", !vid_fullscreen->value );
 		vid_fullscreen->modified = false;
 	}
 

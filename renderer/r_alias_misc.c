@@ -128,18 +128,20 @@ from stenciled volume
 */
 void R_ShadowBlend (float shadowalpha)
 {
+	
+
 	if (r_shadows->value != 3)
 		return;
-
+	
 	qglPushMatrix();
-    qglLoadIdentity ();
-
+	qglLoadIdentity ();
+	
 	// FIXME: get rid of these
-    qglRotatef (-90,  1, 0, 0);	    // put Z going up
-    qglRotatef (90,  0, 0, 1);	    // put Z going up
-
+	qglRotatef (-90,  1, 0, 0);	    // put Z going up
+	qglRotatef (90,  0, 0, 1);	    // put Z going up
+	
 	qglColor4f (0,0,0, shadowalpha);
-
+	
 	GL_Disable (GL_ALPHA_TEST);
 	GL_Enable (GL_BLEND);
 	GL_Disable (GL_DEPTH_TEST);
@@ -159,6 +161,7 @@ void R_ShadowBlend (float shadowalpha)
 	qglPopMatrix();
 
 	GL_BlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	GL_Disable (GL_BLEND);
 	GL_EnableTexture(0);
 	GL_Enable (GL_DEPTH_TEST);
