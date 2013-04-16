@@ -942,8 +942,6 @@ void WriteLevel (char *filename)
 	f = fopen (filename, "wb");
 	if (!f)
 		gi.error ("Couldn't open %s", filename);
-	else
-		Com_Printf("Opened %s for write\n",filename);
 
 	// write out edict size for checking
 	i = sizeof(edict_t);
