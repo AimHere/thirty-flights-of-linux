@@ -1590,9 +1590,9 @@ struct edict_s
 {
 	entity_state_t	s;
 	struct gclient_s	*client;	// NULL if not a player
-									// the server expects the first part
-									// of gclient_s to be a player_state_t
-									// but the rest of it is opaque
+	// the server expects the first part
+	// of gclient_s to be a player_state_t
+	// but the rest of it is opaque
 
 	qboolean	inuse;
 	int			linkcount;
@@ -1622,9 +1622,9 @@ struct edict_s
 	entity_id	class_id;			// Lazarus: Added in lieu of doing string comparisons
 									// on classnames.
 
-	int			movetype;
-	int			oldmovetype;	// Knightmare added
-	int			flags;
+	int		movetype;
+	int		oldmovetype;	// Knightmare added
+	int		flags;
 
 	char		*model;
 	float		freetime;			// sv.time when the object was freed
@@ -1633,9 +1633,9 @@ struct edict_s
 	// only used locally in game, not by server
 	//
 	char		*message;
-	char        *key_message;   // Lazarus: used from tremor_trigger_key
+	char            *key_message;   // Lazarus: used from tremor_trigger_key
 	char		*classname;
-	int			spawnflags;
+	int		spawnflags;
 
 	float		timestamp;
 

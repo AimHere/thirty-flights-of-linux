@@ -78,16 +78,19 @@ libsvga
 
 Known bugs:
 
-Camera seems to jump to the side when coming from the menu
-
 Mouse doesn't work properly in fullscreen
 
-Loading and/or Saving doesn't work properly
+Mouse doesn't work in the front end
 
-Lockup when entering Anita's apartment in TFOL
+Segfaults when loading a saved game, sometimes
+
+Thin black line on left hand side of screen
 
 Shadows don't look good
 
+Screenshots only work properly in 16x9 aspect ratio
+
+Camera seems to jump to the side when coming from the menu
 
 TODO
 
@@ -98,5 +101,7 @@ Find people to test this on
 Cut down on indirection with the RW_IN_foo_fp functions
 
 Use the system SDL libraries, instead of bundling them
+
+Package as a Debian/Ubuntu .deb file
 
 Build and run a 64-bit binary

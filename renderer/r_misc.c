@@ -247,15 +247,15 @@ by Knightmare
 ================== 
 */
 byte	*saveshotdata;
-int		saveshotsize = 256;
+int	saveshotsize = 256;
 void R_ScaledScreenshot (char *name)
 {
 	struct jpeg_compress_struct		cinfo;
 	struct jpeg_error_mgr			jerr;
-	JSAMPROW						s[1];
-	FILE							*file;
-	char							shotname[MAX_OSPATH];
-	int								offset;
+	JSAMPROW				s[1];
+	FILE					*file;
+	char					shotname[MAX_OSPATH];
+	int					offset;
 	
 	if (!saveshotdata) return;
 
@@ -287,10 +287,14 @@ void R_ScaledScreenshot (char *name)
 
 	// Feed Scanline data
 	offset = (cinfo.image_width * cinfo.image_height * 3) - (cinfo.image_width * 3);
+
 	while(cinfo.next_scanline < cinfo.image_height)
 	{
+		//Linux screenshots are off by one pixel per scanline. I don't know why either - DS
 		s[0] = &saveshotdata[offset - (cinfo.next_scanline * (cinfo.image_width * 3))];
+
 		jpeg_write_scanlines(&cinfo, s, 1);
+
 	}
 
 	// Finish Compression

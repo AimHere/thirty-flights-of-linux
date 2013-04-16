@@ -762,7 +762,15 @@ void WriteGame (char *filename, qboolean autosave)
 	game.autosaved = false;
 
 	for (i=0 ; i<game.maxclients ; i++)
+	{
+//		Com_Printf("Wrote client %d: %d %d\n",
+//			   i,
+//			   game.clients[i].ping,
+//			   game.clients[i].ps.pmove);
+			   
 		WriteClient (f, &game.clients[i]);
+	}
+
 
 	fclose (f);
 }
@@ -795,7 +803,14 @@ void ReadGame (char *filename)
 	fread (&game, sizeof(game), 1, f);
 	game.clients = gi.TagMalloc (game.maxclients * sizeof(game.clients[0]), TAG_GAME);
 	for (i=0 ; i<game.maxclients ; i++)
+	{
 		ReadClient (f, &game.clients[i]);
+//		Com_Printf("Read client %d: %d %d\n",
+//			   i,
+//			   game.clients[i].ping,
+//			   game.clients[i].ps.pmove);
+
+	}
 	fclose (f);
 }
 
@@ -927,10 +942,13 @@ void WriteLevel (char *filename)
 	f = fopen (filename, "wb");
 	if (!f)
 		gi.error ("Couldn't open %s", filename);
+	else
+		Com_Printf("Opened %s for write\n",filename);
 
 	// write out edict size for checking
 	i = sizeof(edict_t);
 	fwrite (&i, sizeof(i), 1, f);
+	
 
 	// write out a function pointer for checking
 	base = (void *)InitGame;
@@ -948,6 +966,11 @@ void WriteLevel (char *filename)
 		// Knightmare- don't save reflections
 		if (ent->flags & FL_REFLECT)
 			continue;
+//		Com_Printf("Wrote entity %d: %d %d\n",
+//			   i,
+//			   ent->headnode,
+//			   ent->s.number);
+
 		fwrite (&i, sizeof(i), 1, f);
 		WriteEdict (f, ent);
 	}
@@ -1066,6 +1089,12 @@ void ReadLevel (char *filename)
 
 		if (!ent->inuse)
 			continue;
+
+//		Com_Printf("Read entity %d: %d %d\n",
+//			   i,
+//			   ent->headnode,
+//			   ent->s.number);
+
 
 		// fire any cross-level triggers
 		if (ent->classname)

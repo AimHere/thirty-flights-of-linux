@@ -2470,7 +2470,6 @@ void target_effect_use(edict_t *self, edict_t *other, edict_t *activator)
 		if(!mover) return;
 		if(!VectorLength(mover->velocity)) return;
 	}
-	self->play(self,activator);
 }
 void target_effect_think(edict_t *self)
 {

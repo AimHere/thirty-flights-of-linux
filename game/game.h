@@ -71,22 +71,22 @@ struct gclient_s
 
 struct edict_s
 {
-	entity_state_t	s;
+	entity_state_t   	s;
 	struct gclient_s	*client;
-	qboolean	inuse;
+	qboolean	        inuse;
 	int			linkcount;
 
 	// FIXME: move these fields to a server private sv_entity_t
-	link_t		area;				// linked to a division node or leaf
+	link_t		        area;		// linked to a division node or leaf
 	
-	int			num_clusters;		// if -1, use headnode instead
+	int			num_clusters;	// if -1, use headnode instead
 	int			clusternums[MAX_ENT_CLUSTERS];
-	int			headnode;			// unused if num_clusters != -1
+	int			headnode;	// unused if num_clusters != -1
 	int			areanum, areanum2;
 
 	//================================
 
-	int			svflags;			// SVF_NOCLIENT, SVF_DEADMONSTER, SVF_MONSTER, etc
+	int			svflags;	// SVF_NOCLIENT, SVF_DEADMONSTER, SVF_MONSTER, etc
 	vec3_t		mins, maxs;
 	vec3_t		absmin, absmax, size;
 	solid_t		solid;

@@ -127,7 +127,6 @@ DO_SHLIB_AS=$(CC) $(CFLAGS) $(SHLIBCFLAGS) -DELF -x assembler-with-cpp -o $@ -c 
 
 .PHONY : targets debug release clean clean-debug clean-release clean2
 
-
 ifeq ($(strip $(BUILD_KMQUAKE2)),YES)
   TARGETS+=$(BINDIR)/tfol
 endif
@@ -143,6 +142,9 @@ endif
 ifeq ($(strip $(BUILD_GAME)),YES)
   TARGETS+=$(BINDIR)/baseq2/kmq2game$(ARCH).$(SHLIBEXT)
 endif
+
+TARGETS+= config
+
 
 all:
 	@echo 
@@ -161,23 +163,27 @@ all:
 	@echo ">> make distclean	clean objects, binaries and modified files."
 	@echo 
 
+config:		config/kmq2config.cfg
+		cp config/kmq2config.cfg $(BINDIR)/baseq2/
+
 debug:
 
 	@-mkdir -p $(BUILD_DEBUG_DIR) \
 		$(BINDIR)/baseq2 \
 		$(BUILD_DEBUG_DIR)/client \
 		$(BUILD_DEBUG_DIR)/renderer \
-		$(BUILD_DEBUG_DIR)/game
+		$(BUILD_DEBUG_DIR)/game \
+
 
 	$(MAKE) targets BUILDDIR=$(BUILD_DEBUG_DIR) CFLAGS+="$(DEBUG_CFLAGS) -DKMQUAKE2_VERSION='\"$(VERSION) Debug\"'" 
 
 release:
-
 	@-mkdir -p $(BUILD_RELEASE_DIR) \
 		$(BINDIR)/baseq2 \
 		$(BUILD_RELEASE_DIR)/client \
 		$(BUILD_RELEASE_DIR)/renderer \
-		$(BUILD_RELEASE_DIR)/game
+		$(BUILD_RELEASE_DIR)/game \
+		$(BUILD_RELEASE_DIR)/config
 
 	$(MAKE) targets BUILDDIR=$(BUILD_RELEASE_DIR) CFLAGS+="$(RELEASE_CFLAGS) -DKMQUAKE2_VERSION='\"$(VERSION)\"'"
 
@@ -322,6 +328,7 @@ $(BINDIR)/tfol-sdl : $(QUAKE2_OBJS) $(QUAKE2_AS_OBJS) $(QUAKE2_SDL_OBJS)
 	@echo "==================== Linking $@ ===================="
 	@echo
 	$(CC) $(CFLAGS) -o $@ $(QUAKE2_OBJS) $(QUAKE2_AS_OBJS) $(QUAKE2_SDL_OBJS) $(GLXLDFLAGS) $(LDFLAGS) $(SDLLDFLAGS)
+
 
 $(BUILDDIR)/client/cl_cin.o :     	$(CLIENT_DIR)/cl_cin.c
 	$(DO_CC)

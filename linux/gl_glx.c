@@ -247,6 +247,20 @@ void RW_IN_Commands (void)
 {
 }
 
+
+/*
+===========
+IN_Dump
+===========
+*/
+void IN_Dump(usercmd_t *cmd)
+{
+	Com_Printf("Mouse Dump: Old: (%d,%d)  mx,my: (%d,%d)\n",
+		   old_mouse_x,old_mouse_y,
+		   mx,my);
+}
+
+
 /*
 ===========
 IN_Move
@@ -674,6 +688,7 @@ int GLimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen )
 
 		// Are we going fullscreen?  If so, let's change video mode
 		if (fullscreen && !r_fakeFullscreen->value) {
+
 			best_dist = 9999999;
 			best_fit = -1;
 
