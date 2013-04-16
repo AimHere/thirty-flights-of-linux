@@ -82,7 +82,7 @@ Camera seems to jump to the side when coming from the menu
 
 Mouse doesn't work properly in fullscreen
 
-Loading and/or Saving doesn't work in Gravity Bone
+Loading and/or Saving doesn't work properly
 
 Lockup when entering Anita's apartment in TFOL
 
@@ -95,7 +95,7 @@ Fullscreen and Resolution changes are pretty horrible at the moment
 
 Find people to test this on
 
-Cut down on indirection with the RW_IN_foo_fp files
+Cut down on indirection with the RW_IN_foo_fp functions
 
 Use the system SDL libraries, instead of bundling them
 

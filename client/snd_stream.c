@@ -69,7 +69,7 @@ static int ovc_seek (void *datasource, ogg_int64_t offset, int whence)
 		break;
 	case SEEK_END:
 		fseek(track->file, (int)offset, SEEK_END);
-#else
+#else //OGG_DIRECT_FILE
 		FS_Seek(track->file, (int)offset, FS_SEEK_SET);
 		break;
 	case SEEK_CUR:
@@ -77,7 +77,7 @@ static int ovc_seek (void *datasource, ogg_int64_t offset, int whence)
 		break;
 	case SEEK_END:
 		FS_Seek(track->file, (int)offset, FS_SEEK_END);
-#endif
+#endif //OGG_DIRECT_FILE
 		break;
 	default:
 		return -1;
@@ -99,9 +99,9 @@ static long ovc_tell (void *datasource)
 
 #ifdef OGG_DIRECT_FILE
 	return ftell(track->file);
-#else
+#else //OGG_DIRECT_FILE
 	return FS_Tell(track->file);
-#endif
+#endif //OGG_DIRECT_FILE
 }
 
 
@@ -118,7 +118,7 @@ static qboolean S_OpenBackgroundTrack (const char *name, bgTrack_t *track)
 #ifdef OGG_DIRECT_FILE
 	char	filename[1024];
 	char	*path = NULL;
-#endif
+#endif //OGG_DIRECT_FILE
 
 	//Com_Printf("Opening background track: %s\n", name);
 
@@ -129,9 +129,9 @@ static qboolean S_OpenBackgroundTrack (const char *name, bgTrack_t *track)
 		if ( (track->file = fopen(filename, "rb")) != 0)
 			break;
 	} while ( path );
-#else
+#else //OGG_DIRECT_FILE
 	FS_FOpenFile(name, &track->file, FS_READ);
-#endif
+#endif //OGG_DIRECT_FILE
 	if (!track->file)
 	{
 		Com_Printf(S_COLOR_YELLOW"S_OpenBackgroundTrack: couldn't find %s\n", name);
@@ -164,8 +164,8 @@ static qboolean S_OpenBackgroundTrack (const char *name, bgTrack_t *track)
 	track->channels = vorbisInfo->channels; // Knightmare added
 	track->format = (vorbisInfo->channels == 2) ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
 
-	//Com_Printf("Vorbis info: frequency: %i channels: %i bitrate: %i\n",
-	//	vorbisInfo->rate, vorbisInfo->channels, vorbisInfo->bitrate_nominal);
+//	Com_Printf("Vorbis info: frequency: %i channels: %i bitrate: %i\n",
+//		vorbisInfo->rate, vorbisInfo->channels, vorbisInfo->bitrate_nominal);
 
 	return true;
 }
@@ -258,7 +258,7 @@ void S_StreamBackgroundTrack (void)
 				ov_raw_seek(s_bgTrack.vorbisFile, (ogg_int64_t)s_bgTrack.start);
 
 				// Try streaming again
-				read = ov_read(s_bgTrack.vorbisFile, data + size, BUFFER_SIZE - size, 0, 2, 1, &dummy);
+				read = ov_rpead(s_bgTrack.vorbisFile, data + size, BUFFER_SIZE - size, 0, 2, 1, &dummy);
 			}
 
 			if (read <= 0)
@@ -301,7 +301,8 @@ S_UpdateBackgroundTrack
 void S_UpdateBackgroundTrack (void)
 {
 	int		samples, maxSamples;
-	int		read, maxRead, total, dummy;
+	int		dummy;
+	long    read, maxRead, total;
 	float	scale;
 	byte	data[MAX_RAW_SAMPLES*4];
 
@@ -319,17 +320,21 @@ void S_UpdateBackgroundTrack (void)
 
 	while (1)
 	{
+
 		samples = (paintedtime + MAX_RAW_SAMPLES - s_rawend) * scale;
 		if (samples <= 0)
 			return;
 		if (samples > maxSamples)
 			samples = maxSamples;
+
 		maxRead = samples * s_bgTrack.channels * s_bgTrack.width;
 
 		total = 0;
 		while (total < maxRead)
 		{
+			   
 			read = ov_read(s_bgTrack.vorbisFile, data + total, maxRead - total, 0, 2, 1, &dummy);
+
 			if (!read)
 			{	// End of file
 				if (!s_bgTrack.looping)
@@ -345,11 +350,25 @@ void S_UpdateBackgroundTrack (void)
 					s_bgTrack.looping = true;
 				}
 
+
+				//Linux version goes into an infinite loop when
+				//trying to play a file of length zero, hence this:
+				if (s_bgTrack.vorbisFile &&
+				    ((OggVorbis_File *)s_bgTrack.vorbisFile)->end <= s_bgTrack.start)
+				{
+					S_StopBackgroundTrack();
+					return;
+				}
+
+				
 				// Restart the track, skipping over the header
+
 				ov_raw_seek(s_bgTrack.vorbisFile, (ogg_int64_t)s_bgTrack.start);
+
 			}
 
 			total += read;
+			
 		}
 		S_RawSamples (samples, s_bgTrack.rate, s_bgTrack.width, s_bgTrack.channels, data, true );
 	}
