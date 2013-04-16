@@ -1099,7 +1099,7 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	if ( !QGL_Init( gl_driver->string ) )
 	{
 		QGL_Shutdown();
-        VID_Printf (PRINT_ALL, "R_Init() - could not load \"%s\"\n", gl_driver->string );
+		VID_Printf (PRINT_ALL, "R_Init() - could not load \"%s\"\n", gl_driver->string );
 		memcpy (reason, "Init of QGL dynamic bindings Failed!\0", 37);
 		return false;
 	}
@@ -1126,7 +1126,6 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 
 	RB_InitBackend(); // init mini-backend
 
-
 	//
 	// get our various GL strings
 	//
@@ -1136,6 +1135,16 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	VID_Printf (PRINT_ALL, "GL_RENDERER: %s\n", gl_config.renderer_string );
 	gl_config.version_string = qglGetString (GL_VERSION);
 	VID_Printf (PRINT_ALL, "GL_VERSION: %s\n", gl_config.version_string );
+
+
+	if (gl_config.renderer_string == NULL)
+	{
+
+	    QGL_Shutdown();
+	    VID_Printf("PRINT_ALL", "R_Init() - bad strings\n");
+	    memcpy(reason, "Bad vendor strings\n",19);
+	    return false;
+	}
 
 	// Knighmare- added max texture size
 	qglGetIntegerv(GL_MAX_TEXTURE_SIZE,&gl_config.max_texsize);

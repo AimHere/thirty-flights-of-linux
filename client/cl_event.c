@@ -133,7 +133,7 @@ Since this is a replacement for plain Jane EV_FOOTSTEP, we already know
 the player is definitely on the ground when this is called.
 ===============
 */
-void CL_FootSteps (entity_state_t *ent, qboolean loud)
+void CL_FootSteps (entity_state_t *ent, qboolean loud, int limit)
 {
 	trace_t	tr;
 	vec3_t	end;
@@ -141,6 +141,16 @@ void CL_FootSteps (entity_state_t *ent, qboolean loud)
 	int		surface;
 	struct	sfx_s	*stepsound = NULL;
 	float	volume = 0.5;
+
+	/* Ugly little kluge alert - DS
+	   TFOL - Linux version 
+	   Seaplane in TFOL den has initial surface 0,
+	   which repeatedly fallbacks to surface 0 on subsequent
+	   calls to CL_FootSteps causing an infinite recursion.
+	   Hence this hardcoded recursion limit */
+
+	if (limit > 4)
+	    return; 
 
 	r = (rand()&3);
 
@@ -150,6 +160,7 @@ void CL_FootSteps (entity_state_t *ent, qboolean loud)
 	if (!tr.surface)
 		return;
 	surface = tr.surface->flags & SURF_STEPMASK;
+
 	switch (surface)
 	{
 	case SURF_METAL:
@@ -203,12 +214,13 @@ void CL_FootSteps (entity_state_t *ent, qboolean loud)
 				if (strstr(tr.surface->name,tex_surf[i].tex) && tex_surf[i].step_id > 0)
 				{
 					tr.surface->flags |= (SURF_METAL << (tex_surf[i].step_id - 1));
-					CL_FootSteps (ent, loud); // start over
+					CL_FootSteps (ent, loud, limit+1); // start over
 					return;
 				}
 		}
 		tr.surface->flags |= SURF_STANDARD;
-		CL_FootSteps (ent, loud); // start over
+
+		CL_FootSteps (ent, loud, limit+1); // start over
 		return;
 	}
 
@@ -249,7 +261,7 @@ void CL_EntityEvent (entity_state_t *ent)
 		if (cl_footsteps->value)
 //Knightmare- Lazarus footsteps
 			//S_StartSound (NULL, ent->number, CHAN_BODY, cl_sfx_footsteps[rand()&3], 1, ATTN_NORM, 0);
-			CL_FootSteps (ent, false);
+		    CL_FootSteps (ent, false, 0);
 		break;
 	case EV_LOUDSTEP:
 

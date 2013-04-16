@@ -20,6 +20,7 @@ And, to reiterate, this code is based on the work of:
   Thirty Flights of Loving and Gravity Bone,
   both from Brendan Chung (blendogames.com)
 
+
 And uses:
   OGG Vorbis
   ZLib
@@ -83,11 +84,10 @@ Mouse doesn't work properly in fullscreen
 
 Loading and/or Saving doesn't work in Gravity Bone
 
-Crash bug when entering plane/Apartment in TFOL
-
-Sound delay on some systems
+Lockup when entering Anita's apartment in TFOL
 
 Shadows don't look good
+
 
 TODO
 

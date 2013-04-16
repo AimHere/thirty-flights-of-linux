@@ -274,6 +274,7 @@ qboolean VID_LoadRefresh( char *name )
 	
 	if ((reflib_library = dlopen (name, RTLD_LAZY|RTLD_GLOBAL)) == 0)
 	{
+
 		Com_Printf("LoadLibrary (\"%s\") failed.\n", dlerror());
 		return false;
 	}
@@ -297,14 +298,17 @@ qboolean VID_LoadRefresh( char *name )
 
 	Real_IN_Init();
 
-/*	if ( R_Init( 0, 0,message ) == -1 )
+
+	if ( R_Init( 0, 0,message ) == false )
 	{
 		Com_Printf("Render Init fail: %s\n",message);
-		R_Shutdown();
-		VID_FreeReflib ();
+		//R_Shutdown();
+		//VID_FreeReflib ();
 		return false;
 	}
-*/
+
+
+
 	// Init KBD 
 	void KBD_Init(void);
 	void KBD_Update(void);
@@ -366,19 +370,30 @@ void VID_CheckChanges (void)
 			drive_try = (i<0)? name:opengl_drivers[i];
 
 			Com_Printf("Attempted driver load: %s\n",drive_try);			
+			gl_string=malloc(1+sizeof(char)*strlen(drive_try));
+			if (!gl_string)
+			    Com_Error (ERR_FATAL,"VID_CheckChanges: String Malloc fail\n");
+			
+			strcpy(gl_string,drive_try);
+			Cvar_ForceSet("gl_driver",gl_string);
+			
+			
 			if (VID_LoadRefresh(drive_try))
 			{
-				Com_Printf("Loading driver: %s\n",drive_try);
-				break;
+			    Com_Printf("Loading driver: %s\n",drive_try);
+			    break;
 			}
-
+			
 		}
+		
+		Com_Printf("Set gl_driver to %s\n",drive_try);
+
+
 
 		if (i >= FALLBACK_DRIVER_COUNT)
 		{
-			Com_Error(ERR_FATAL, "VID_CheckChanges: No suitable GL driver\n");
+		    Com_Error(ERR_FATAL, "VID_CheckChanges: No suitable GL driver\n");
 		}
-
 
 
 		gl_string=malloc(1+sizeof(char)*strlen(drive_try));
@@ -389,16 +404,19 @@ void VID_CheckChanges (void)
 		Cvar_ForceSet("gl_driver",gl_string);
 		Com_Printf("Set gl_driver to %s\n",drive_try);
 		
-
+		/*
 		if (!R_Init( 0, 0, reason) == -1)
 		  {
 		    R_Shutdown();
-		    VID_FreeRefLib();
+		    VID_FreeReflib();
 		    Com_Error("Couldn't initialize renderer: %s",reason);
 		  }
-
+		*/
 		cls.disable_screen = false;
 	}
+
+
+
 
 }
 
