@@ -78,7 +78,7 @@ libsvga
 
 Known bugs:
 
-Mouse doesn't work properly in fullscreen
+Mouse doesn't work properly after display changes
 
 Mouse doesn't work in the front end
 
@@ -88,9 +88,7 @@ Thin black line on left hand side of screen
 
 Shadows don't look good
 
-Screenshots only work properly in 16x9 aspect ratio
-
-Camera seems to jump to the side when coming from the menu
+Screenshots only work properly in certain aspect ratios
 
 TODO
 

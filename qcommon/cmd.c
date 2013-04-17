@@ -98,6 +98,9 @@ void Cbuf_AddText (char *text)
 		Com_Printf ("Cbuf_AddText: overflow\n");
 		return;
 	}
+//	else
+//		Com_Printf("Cbuf_Addtext: %s",text);
+
 	SZ_Write (&cmd_text, text, strlen (text));
 }
 
