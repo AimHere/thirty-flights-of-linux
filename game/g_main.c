@@ -524,8 +524,10 @@ void CheckNumTechs(void);
 
 void G_RunFrame (void)
 {
-	int		i;
+	int	i;
 	edict_t	*ent;
+
+
 
 	// Knightmare- dm pause
 	if (paused && deathmatch->value)
@@ -541,9 +543,11 @@ void G_RunFrame (void)
 
 	level.time = level.framenum*FRAMETIME;
 
+	//Com_Printf("G_RunFrame : %d (%d)\n",level.framenum, level.time);
+
 	// choose a client for monsters to target this frame
 	AI_SetSightClient ();
-
+	
 	// exit intermissions
 
 	if (level.exitintermission)

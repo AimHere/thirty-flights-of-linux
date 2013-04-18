@@ -50,7 +50,6 @@ SNDDMA_Init (void)
 	SDL_AudioSpec desired, obtained;
 	int desired_bits, freq;
 
-	
 	if (SDL_WasInit(SDL_INIT_EVERYTHING) == 0) {
 		if (SDL_Init(SDL_INIT_AUDIO) < 0) {
 			Com_Printf ("Couldn't init SDL audio: %s\n", SDL_GetError ());

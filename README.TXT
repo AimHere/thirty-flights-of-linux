@@ -20,13 +20,14 @@ And, to reiterate, this code is based on the work of:
   Thirty Flights of Loving and Gravity Bone,
   both from Brendan Chung (blendogames.com)
 
-
 And uses:
   OGG Vorbis
   ZLib
   Libpng
   Libjpeg
   SDL
+and a couple files pilfered from wine
+
 
 David Sinclair, 2013.
 
@@ -82,8 +83,6 @@ Mouse doesn't work properly after display changes
 
 Mouse doesn't work in the front end
 
-Segfaults when loading a saved game, sometimes
-
 Thin black line on left hand side of screen
 
 Shadows don't look good
@@ -92,7 +91,7 @@ Screenshots only work properly in certain aspect ratios
 
 TODO
 
-Fullscreen and Resolution changes are pretty horrible at the moment
+Fullscreen and Resolution changes aren't great at the moent
 
 Find people to test this on
 

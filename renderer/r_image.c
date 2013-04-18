@@ -1733,6 +1733,9 @@ int nearest_power_of_2 (int size)
 	};
 }
 
+
+
+
 qboolean GL_Upload32 (unsigned *data, int width, int height, qboolean mipmap)
 {
 	int			samples;
@@ -1878,6 +1881,8 @@ done:
 	if (scaled_width != width || scaled_height != height) 
 	{
 		scaled=malloc((scaled_width * scaled_height) * 4);
+		if (!scaled) 
+			return false;
 		GL_ResampleTexture(data,width,height,scaled,scaled_width,scaled_height);
 	}
 	else
@@ -1919,6 +1924,9 @@ done:
 
 	return (samples == gl_alpha_format || samples == GL_COMPRESSED_RGBA_ARB);
 }
+
+
+
 
 /*
 ===============

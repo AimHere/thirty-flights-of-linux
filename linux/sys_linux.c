@@ -257,7 +257,7 @@ void *Sys_GetGameAPI (void *parms)
 		}
 		else
 		{
-			Com_Printf ("No Game Library (%s)\n",name);
+			Com_Printf ("No Game Library (%s): %s\n",name, dlerror());
 		}
 	}
 

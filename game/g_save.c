@@ -84,6 +84,7 @@ field_t fields[] = {
 	{"use", FOFS(use), F_FUNCTION, FFL_NOSPAWN},
 	{"pain", FOFS(pain), F_FUNCTION, FFL_NOSPAWN},
 	{"die", FOFS(die), F_FUNCTION, FFL_NOSPAWN},
+	{"play",FOFS(play), F_FUNCTION, FFL_NOSPAWN},  //AH added, someone missed this one
 
 	{"stand", FOFS(monsterinfo.stand), F_FUNCTION, FFL_NOSPAWN},
 	{"idle", FOFS(monsterinfo.idle), F_FUNCTION, FFL_NOSPAWN},
@@ -496,6 +497,7 @@ void InitGame (void)
 //ZOID
 }
 
+
 //=========================================================
 
 void WriteField1 (FILE *f, field_t *field, byte *base)
@@ -552,8 +554,11 @@ void WriteField1 (FILE *f, field_t *field, byte *base)
 		if (*(byte **)p == NULL)
 			index = 0;
 		else
+		{
 			index = *(byte **)p - ((byte *)InitGame);
+		}
 		*(int *)p = index;
+
 		break;
 
 	//relative to data segment
@@ -568,6 +573,8 @@ void WriteField1 (FILE *f, field_t *field, byte *base)
 	default:
 		gi.error ("WriteEdict: unknown field type");
 	}
+
+
 }
 
 
@@ -587,6 +594,7 @@ void WriteField2 (FILE *f, field_t *field, byte *base)
 		{
 			len = strlen(*(char **)p) + 1;
 			fwrite (*(char **)p, len, 1, f);
+
 		}
 		break;
 	}
@@ -600,7 +608,7 @@ void ReadField (FILE *f, field_t *field, byte *base)
 
 	if (field->flags & FFL_SPAWNTEMP)
 		return;
-
+	
 	p = (void *)(base + field->ofs);
 	switch (field->type)
 	{
@@ -649,7 +657,9 @@ void ReadField (FILE *f, field_t *field, byte *base)
 		if ( index == 0 )
 			*(byte **)p = NULL;
 		else
+		{
 			*(byte **)p = ((byte *)InitGame) + index;
+		}
 		break;
 
 	//relative to data segment
@@ -692,6 +702,7 @@ void WriteClient (FILE *f, gclient_t *client)
 	// write the block
 	fwrite (&temp, sizeof(temp), 1, f);
 
+
 	// now write any allocated data following the edict
 	for (field=clientfields ; field->name ; field++)
 	{
@@ -715,7 +726,7 @@ void ReadClient (FILE *f, gclient_t *client)
 	client->pers.spawn_landmark = false;
 	client->pers.spawn_levelchange = false;
 	for (field=clientfields ; field->name ; field++)
-	{
+	{		
 		ReadField (f, field, (byte *)client);
 	}
 }
@@ -763,11 +774,6 @@ void WriteGame (char *filename, qboolean autosave)
 
 	for (i=0 ; i<game.maxclients ; i++)
 	{
-//		Com_Printf("Wrote client %d: %d %d\n",
-//			   i,
-//			   game.clients[i].ping,
-//			   game.clients[i].ps.pmove);
-			   
 		WriteClient (f, &game.clients[i]);
 	}
 
@@ -781,7 +787,7 @@ void ReadGame (char *filename)
 	int		i;
 	char	str[16];
 
-	if(developer->value)
+//	if(developer->value)
 		gi.dprintf ("==== ReadGame ====\n");
 
 	gi.FreeTags (TAG_GAME);
@@ -805,10 +811,6 @@ void ReadGame (char *filename)
 	for (i=0 ; i<game.maxclients ; i++)
 	{
 		ReadClient (f, &game.clients[i]);
-//		Com_Printf("Read client %d: %d %d\n",
-//			   i,
-//			   game.clients[i].ping,
-//			   game.clients[i].ps.pmove);
 
 	}
 	fclose (f);
@@ -943,7 +945,7 @@ void WriteLevel (char *filename)
 	if (!f)
 		gi.error ("Couldn't open %s", filename);
 
-	// write out edict size for checking
+	// write out edict_t size for checking
 	i = sizeof(edict_t);
 	fwrite (&i, sizeof(i), 1, f);
 	
@@ -964,10 +966,6 @@ void WriteLevel (char *filename)
 		// Knightmare- don't save reflections
 		if (ent->flags & FL_REFLECT)
 			continue;
-//		Com_Printf("Wrote entity %d: %d %d\n",
-//			   i,
-//			   ent->headnode,
-//			   ent->s.number);
 
 		fwrite (&i, sizeof(i), 1, f);
 		WriteEdict (f, ent);
@@ -1019,12 +1017,12 @@ void ReadLevel (char *filename)
 	memset (g_edicts, 0, game.maxentities*sizeof(g_edicts[0]));
 	globals.num_edicts = maxclients->value+1;
 
-	// check edict size
+	// check edict_t size
 	fread (&i, sizeof(i), 1, f);
 	if (i != sizeof(edict_t))
 	{
 		fclose (f);
-		gi.error ("ReadLevel: mismatched edict size");
+		gi.error ("ReadLevel: mismatched edict_t size");
 	}
 
 	// check function pointer base address
@@ -1063,7 +1061,7 @@ void ReadLevel (char *filename)
 			globals.num_edicts = entnum+1;
 
 		ent = &g_edicts[entnum];
-		ReadEdict (f, ent);
+		ReadEdict(f, ent);
 
 		// let the server rebuild world links for this ent
 		memset (&ent->area, 0, sizeof(ent->area));
@@ -1087,12 +1085,6 @@ void ReadLevel (char *filename)
 
 		if (!ent->inuse)
 			continue;
-
-//		Com_Printf("Read entity %d: %d %d\n",
-//			   i,
-//			   ent->headnode,
-//			   ent->s.number);
-
 
 		// fire any cross-level triggers
 		if (ent->classname)

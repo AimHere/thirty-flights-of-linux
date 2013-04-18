@@ -2472,11 +2472,13 @@ void target_effect_use(edict_t *self, edict_t *other, edict_t *activator)
 	}
 	self->play(self,activator);
 }
+
 void target_effect_think(edict_t *self)
 {
 	self->play(self,NULL);
 	self->nextthink = level.time + self->wait;
 }
+
 //===============================================================================
 void SP_target_effect (edict_t *self)
 {

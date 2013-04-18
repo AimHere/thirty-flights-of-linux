@@ -1657,7 +1657,7 @@ struct edict_s
 	vec3_t		avelocity;
 	vec3_t		old_velocity, relative_velocity, relative_avelocity; // Knightmare added
 
-	int			mass;
+	int	       	mass;
 	float		air_finished;
 	float		gravity;		// per entity gravity multiplier (1.0 is normal)
 								// use for lowgrav artifact, flares

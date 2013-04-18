@@ -127,6 +127,7 @@ void InitSaveshots (qboolean loadmenu)
 
 void DrawSaveshot (qboolean loadmenu)
 {
+
 	char shotname [MAX_QPATH];
 	char mapshotname [MAX_QPATH];
 	int i;
@@ -153,6 +154,7 @@ void DrawSaveshot (qboolean loadmenu)
 		SCR_DrawPic (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-58, 240, 180, ALIGN_CENTER, "/gfx/noscreen.pcx", 1.0);
 	else
 		SCR_DrawFill2 (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-58, 240, 180, ALIGN_CENTER, 0,0,0,255);
+
 }
 
 

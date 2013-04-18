@@ -1,189 +1,193 @@
 /*
 Copyright (C) 1997-2001 Id Software, Inc.
-Copyright (C) 2000-2002 Mr. Hyde and Mad Dog
+ Copyright (C) 2000-2002 Mr. Hyde and Mad Dog
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 
-See the GNU General Public License for more details.
+ See the GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-*/
+ */
 
-// g_phys.c
+ // g_phys.c
 
-#include "g_local.h"
+ #include "g_local.h"
 
-qboolean	wasonground;
-qboolean	onconveyor;
-edict_t		*blocker;
-/*
-
-
-pushmove objects do not obey gravity, and do not interact with each other or trigger fields, but block normal movement and push normal objects when they move.
-
-onground is set for toss objects when they come to a complete rest.  it is set for steping or walking objects 
-
-doors, plats, etc are SOLID_BSP, and MOVETYPE_PUSH
-bonus items are SOLID_TRIGGER touch, and MOVETYPE_TOSS
-corpses are SOLID_NOT and MOVETYPE_TOSS
-crates are SOLID_BBOX and MOVETYPE_TOSS
-walking monsters are SOLID_SLIDEBOX and MOVETYPE_STEP
-flying/floating monsters are SOLID_SLIDEBOX and MOVETYPE_FLY
-
-solid_edge items only clip against bsp models.
-
-*/
-
-//
-//=================
-// other_FallingDamage
-// Identical to player's P_FallingDamage... except of course ent doesn't have to be a player
-//=================
-//
-void other_FallingDamage (edict_t *ent)
-{
-	float	delta;
-	float   fall_time, fall_value;
-	int		damage;
-	vec3_t	dir;
-
-	if (ent->movetype == MOVETYPE_NOCLIP)
-		return;
-
-	if ((ent->oldvelocity[2] < 0) && (ent->velocity[2] > ent->oldvelocity[2]) && (!ent->groundentity))
-	{
-		delta = ent->oldvelocity[2];
-	}
-	else
-	{
-		if (!ent->groundentity)
-			return;
-		delta = ent->velocity[2] - ent->oldvelocity[2];
-	}
-	delta = delta*delta * 0.0001;
-
-	// never take falling damage if completely underwater
-	if (ent->waterlevel == 3)
-		return;
-	if (ent->waterlevel == 2)
-		delta *= 0.25;
-	if (ent->waterlevel == 1)
-		delta *= 0.5;
-
-	if (delta < 1)
-		return;
-
-	if (delta < 15)
-	{
-		ent->s.event = EV_FOOTSTEP;
-		return;
-	}
-
-	fall_value = delta*0.5;
-	if (fall_value > 40) fall_value = 40;
-	fall_time = level.time + FALL_TIME;
-
-	if (delta > 30)
-	{
-		ent->pain_debounce_time = level.time;	// no normal pain sound
-		damage = (delta-30)/2;
-		if (damage < 1)
-			damage = 1;
-		VectorSet (dir, 0, 0, 1);
-
-		if (!deathmatch->value || !((int)dmflags->value & DF_NO_FALLING) )
-			T_Damage (ent, world, world, dir, ent->s.origin, vec3_origin, damage, 0, 0, MOD_FALLING);
-	}
-	else
-	{
-		// ent->s.event = EV_FALLSHORT;
-		return;
-	}
-}
-
-/*
-============
-SV_TestEntityPosition
-
-============
-*/
-edict_t	*SV_TestEntityPosition (edict_t *ent)
-{
-	trace_t	trace;
-	int		mask;
-
-	if (ent->clipmask)
-		mask = ent->clipmask;
-	else
-		mask = MASK_SOLID;
-	if(ent->solid == SOLID_BSP)
-	{
-		vec3_t	org, mins, maxs;
-		VectorAdd(ent->s.origin,ent->origin_offset,org);
-		VectorSubtract(ent->mins,ent->origin_offset,mins);
-		VectorSubtract(ent->maxs,ent->origin_offset,maxs);
-		trace = gi.trace (org, mins, maxs, org, ent, mask);
-	}
-	else
-		trace = gi.trace (ent->s.origin, ent->mins, ent->maxs, ent->s.origin, ent, mask);
-
-	if (trace.startsolid)
-	{
-		// Lazarus - work around for players/monsters standing on dead monsters causing
-		// those monsters to gib when rotating brush models are in the vicinity
-		if ( (ent->svflags & SVF_DEADMONSTER) && (trace.ent->client || (trace.ent->svflags & SVF_MONSTER)))
-			return NULL;
-
-		// Lazarus - return a bit more useful info than simply "g_edicts"
-		if(trace.ent)
-			return trace.ent;
-		else
-			return world;
-	}
-	
-	return NULL;
-}
+ qboolean	wasonground;
+ qboolean	onconveyor;
+ edict_t		*blocker;
+ /*
 
 
-/*
-================
-SV_CheckVelocity
-================
-*/
-void SV_CheckVelocity (edict_t *ent)
-{
-	// Lazarus: This is a pretty goofy way to bound velocity. This has the effect
-	//          of changing directions, which makes no sense at all. Maybe they
-	//          were just avoiding a sqrt?
-/*
-	int		i;
+ pushmove objects do not obey gravity, and do not interact with each other or trigger fields, but block normal movement and push normal objects when they move.
 
-//
-// bound velocity
-//
-	for (i=0 ; i<3 ; i++)
-	{
-		if (ent->velocity[i] > sv_maxvelocity->value)
-			ent->velocity[i] = sv_maxvelocity->value;
-		else if (ent->velocity[i] < -sv_maxvelocity->value)
-			ent->velocity[i] = -sv_maxvelocity->value;
-	} */
-	if (VectorLength(ent->velocity) > sv_maxvelocity->value)
-	{
-		VectorNormalize(ent->velocity);
-		VectorScale(ent->velocity, sv_maxvelocity->value, ent->velocity);
-	}
-}
+ onground is set for toss objects when they come to a complete rest.  it is set for steping or walking objects 
+
+ doors, plats, etc are SOLID_BSP, and MOVETYPE_PUSH
+ bonus items are SOLID_TRIGGER touch, and MOVETYPE_TOSS
+ corpses are SOLID_NOT and MOVETYPE_TOSS
+ crates are SOLID_BBOX and MOVETYPE_TOSS
+ walking monsters are SOLID_SLIDEBOX and MOVETYPE_STEP
+ flying/floating monsters are SOLID_SLIDEBOX and MOVETYPE_FLY
+
+ solid_edge items only clip against bsp models.
+
+ */
+
+
+
+
+ //
+ //=================
+ // other_FallingDamage
+ // Identical to player's P_FallingDamage... except of course ent doesn't have to be a player
+ //=================
+ //
+ void other_FallingDamage (edict_t *ent)
+ {
+	 float	delta;
+	 float   fall_time, fall_value;
+	 int		damage;
+	 vec3_t	dir;
+
+	 if (ent->movetype == MOVETYPE_NOCLIP)
+		 return;
+
+	 if ((ent->oldvelocity[2] < 0) && (ent->velocity[2] > ent->oldvelocity[2]) && (!ent->groundentity))
+	 {
+		 delta = ent->oldvelocity[2];
+	 }
+	 else
+	 {
+		 if (!ent->groundentity)
+			 return;
+		 delta = ent->velocity[2] - ent->oldvelocity[2];
+	 }
+	 delta = delta*delta * 0.0001;
+
+	 // never take falling damage if completely underwater
+	 if (ent->waterlevel == 3)
+		 return;
+	 if (ent->waterlevel == 2)
+		 delta *= 0.25;
+	 if (ent->waterlevel == 1)
+		 delta *= 0.5;
+
+	 if (delta < 1)
+		 return;
+
+	 if (delta < 15)
+	 {
+		 ent->s.event = EV_FOOTSTEP;
+		 return;
+	 }
+
+	 fall_value = delta*0.5;
+	 if (fall_value > 40) fall_value = 40;
+	 fall_time = level.time + FALL_TIME;
+
+	 if (delta > 30)
+	 {
+		 ent->pain_debounce_time = level.time;	// no normal pain sound
+		 damage = (delta-30)/2;
+		 if (damage < 1)
+			 damage = 1;
+		 VectorSet (dir, 0, 0, 1);
+
+		 if (!deathmatch->value || !((int)dmflags->value & DF_NO_FALLING) )
+			 T_Damage (ent, world, world, dir, ent->s.origin, vec3_origin, damage, 0, 0, MOD_FALLING);
+	 }
+	 else
+	 {
+		 // ent->s.event = EV_FALLSHORT;
+		 return;
+	 }
+ }
+
+ /*
+ ============
+ SV_TestEntityPosition
+
+ ============
+ */
+ edict_t	*SV_TestEntityPosition (edict_t *ent)
+ {
+	 trace_t	trace;
+	 int		mask;
+
+	 if (ent->clipmask)
+		 mask = ent->clipmask;
+	 else
+		 mask = MASK_SOLID;
+	 if(ent->solid == SOLID_BSP)
+	 {
+		 vec3_t	org, mins, maxs;
+		 VectorAdd(ent->s.origin,ent->origin_offset,org);
+		 VectorSubtract(ent->mins,ent->origin_offset,mins);
+		 VectorSubtract(ent->maxs,ent->origin_offset,maxs);
+		 trace = gi.trace (org, mins, maxs, org, ent, mask);
+	 }
+	 else
+		 trace = gi.trace (ent->s.origin, ent->mins, ent->maxs, ent->s.origin, ent, mask);
+
+	 if (trace.startsolid)
+	 {
+		 // Lazarus - work around for players/monsters standing on dead monsters causing
+		 // those monsters to gib when rotating brush models are in the vicinity
+		 if ( (ent->svflags & SVF_DEADMONSTER) && (trace.ent->client || (trace.ent->svflags & SVF_MONSTER)))
+			 return NULL;
+
+		 // Lazarus - return a bit more useful info than simply "g_edicts"
+		 if(trace.ent)
+			 return trace.ent;
+		 else
+			 return world;
+	 }
+
+	 return NULL;
+ }
+
+
+ /*
+ ================
+ SV_CheckVelocity
+ ================
+ */
+ void SV_CheckVelocity (edict_t *ent)
+ {
+	 // Lazarus: This is a pretty goofy way to bound velocity. This has the effect
+	 //          of changing directions, which makes no sense at all. Maybe they
+	 //          were just avoiding a sqrt?
+ /*
+	 int		i;
+
+ //
+ // bound velocity
+ //
+	 for (i=0 ; i<3 ; i++)
+	 {
+		 if (ent->velocity[i] > sv_maxvelocity->value)
+			 ent->velocity[i] = sv_maxvelocity->value;
+		 else if (ent->velocity[i] < -sv_maxvelocity->value)
+			 ent->velocity[i] = -sv_maxvelocity->value;
+	 } */
+	 if (VectorLength(ent->velocity) > sv_maxvelocity->value)
+	 {
+		 VectorNormalize(ent->velocity);
+		 VectorScale(ent->velocity, sv_maxvelocity->value, ent->velocity);
+	 }
+ }
+
 
 /*
 =============
@@ -205,6 +209,10 @@ qboolean SV_RunThink (edict_t *ent)
 	ent->nextthink = 0;
 	if (!ent->think)
 		gi.error ("NULL ent->think for %s",ent->classname);
+	else 
+	{
+//		dump_Edict(ent);
+	}
 	ent->think (ent);
 
 	return false;
@@ -1388,6 +1396,8 @@ Non moving objects can only think
 void SV_Physics_None (edict_t *ent)
 {
 // regular thinking
+	if (ent->s.number == 34) return;
+
 	SV_RunThink (ent);
 }
 
@@ -2486,7 +2496,7 @@ trace_t SV_DebrisEntity (edict_t *ent, vec3_t push)
 			SV_Impact (ent, &trace);
 		}
 	}
-	return trace;
+ 	return trace;
 }					
 
 /*
@@ -2625,6 +2635,14 @@ void SV_Physics_Conveyor(edict_t *ent)
 		}
 	}
 }
+
+
+void DumpEntity(edict_t *ent)
+{
+
+
+}
+
 
 /*
 ================

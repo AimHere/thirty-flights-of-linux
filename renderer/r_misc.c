@@ -290,11 +290,8 @@ void R_ScaledScreenshot (char *name)
 
 	while(cinfo.next_scanline < cinfo.image_height)
 	{
-		//Linux screenshots are off by one pixel per scanline. I don't know why either - DS
 		s[0] = &saveshotdata[offset - (cinfo.next_scanline * (cinfo.image_width * 3))];
-
 		jpeg_write_scanlines(&cinfo, s, 1);
-
 	}
 
 	// Finish Compression
@@ -517,6 +514,11 @@ void R_ScreenShot_f (void)
 
 
 	buffer = malloc(vid.width*vid.height*3 + 18);
+	if (!buffer) 
+	{
+		VID_Printf(PRINT_ALL,"SCR_ScreenShot_f: Can't alloc memory\n");
+		return;
+	}
 	memset (buffer, 0, 18);
 	buffer[2] = 2;		// uncompressed type
 	buffer[12] = vid.width&255;

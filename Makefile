@@ -63,7 +63,7 @@ ifeq ($(OSTYPE),FreeBSD)
   LDFLAGS=-lm -lz
 endif
 ifeq ($(OSTYPE),Linux)
-  LDFLAGS=-lm -ldl -lz -lasound
+  LDFLAGS=-lm -ldl -lz -lasound #-lefence
 endif
 
 #Ogg Vorbis support
