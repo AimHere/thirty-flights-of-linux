@@ -1171,16 +1171,16 @@ distclean:
 
 tar:
 	@echo Creating tar file ...
-	@tar cvf tfol-$(VERSION).tar quake2
+	@tar cvf tfol-$(VERSION).tar $(BINDIR)
 	@echo ... Done
 
 gz:
 	@echo Creating gzip compressed file ...
-	@tar czvf tfol-$(VERSION).tar.gz quake2
+	@tar czvf tfol-$(VERSION).tar.gz $(BINDIR)
 	@echo ... Done
 bz2:
 	@echo Creating bzip2 compressed file ...
-	@tar cjvf tfol-$(VERSION).tar.bz2 quake2
+	@tar cjvf tfol-$(VERSION).tar.bz2 $(BINDIR)
 	@echo .... Done
 
 install:
