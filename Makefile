@@ -34,7 +34,7 @@ ALSA_AUDIO=NO	                # Use Alsa for Linux audio
 
 ######################################
 
-VERSION=0.1
+VERSION=bin
 MOUNT_DIR=.
 BUILD_DEBUG_DIR=build_debug
 BUILD_RELEASE_DIR=build_release
@@ -1171,16 +1171,16 @@ distclean:
 
 tar:
 	@echo Creating tar file ...
-	@tar cvf tfol-$(VERSION).tar $(BINDIR)
+	@tar cvf tfol-$(ARCH)-$(VERSION).tar $(BINDIR)
 	@echo ... Done
 
 gz:
 	@echo Creating gzip compressed file ...
-	@tar czvf tfol-$(VERSION).tar.gz $(BINDIR)
+	@tar czvf tfol-$(ARCH)-$(VERSION).tar.gz $(BINDIR)
 	@echo ... Done
 bz2:
 	@echo Creating bzip2 compressed file ...
-	@tar cjvf tfol-$(VERSION).tar.bz2 $(BINDIR)
+	@tar cjvf tfol-$(ARCH)-$(VERSION).tar.bz2 $(BINDIR)
 	@echo .... Done
 
 install:
