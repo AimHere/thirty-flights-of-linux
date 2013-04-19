@@ -32,6 +32,16 @@ and a couple files pilfered from wine
 David Sinclair, 2013.
 
 -----
+Licensing:
+
+This project is licensed under the GNU General Public License
+version 2 or later. You can find a copy of that version of the
+GNU GPL at http://www.gnu.org/licenses
+
+The source code for this project is available from:
+https://github.com/AimHere/thirty-flights-of-linux
+
+---
 
 This ought to create binary files 'tfol-sdl' and 'kmq2gamei386.so'.
 

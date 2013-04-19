@@ -34,11 +34,11 @@ ALSA_AUDIO=NO	                # Use Alsa for Linux audio
 
 ######################################
 
-VERSION=0.20
+VERSION=0.1
 MOUNT_DIR=.
 BUILD_DEBUG_DIR=build_debug
 BUILD_RELEASE_DIR=build_release
-BINDIR=quake2
+BINDIR=tfol
 
 CC=gcc
 BASE_CFLAGS= -Dstricmp=strcasecmp -D_stricmp=strcasecmp -D_strnicmp=strncasecmp -D__linux__ 
@@ -143,8 +143,6 @@ ifeq ($(strip $(BUILD_GAME)),YES)
   TARGETS+=$(BINDIR)/baseq2/kmq2game$(ARCH).$(SHLIBEXT)
 endif
 
-TARGETS+= config
-
 
 all:
 	@echo 
@@ -163,8 +161,14 @@ all:
 	@echo ">> make distclean	clean objects, binaries and modified files."
 	@echo 
 
-config:		config/kmq2config.cfg
-		cp config/kmq2config.cfg $(BINDIR)/baseq2/
+bumf:
+		mkdir -p $(BINDIR)
+		cp README.TXT $(BINDIR)
+		cp gnu.txt $(BINDIR)
+
+kmq2config:	
+		mkdir -p $(BINDIR)/baseq2
+		cp config/kmq2config.cfg $(BINDIR)/baseq2
 
 debug:
 
@@ -175,17 +179,17 @@ debug:
 		$(BUILD_DEBUG_DIR)/game \
 
 
-	$(MAKE) targets BUILDDIR=$(BUILD_DEBUG_DIR) CFLAGS+="$(DEBUG_CFLAGS) -DKMQUAKE2_VERSION='\"$(VERSION) Debug\"'" 
+	$(MAKE) targets BUILDDIR=$(BUILD_DEBUG_DIR) CFLAGS+="$(DEBUG_CFLAGS) -DKMQUAKE2_VERSION='\"$(VERSION) Debug\"'" kmq2config bumf
+
 
 release:
 	@-mkdir -p $(BUILD_RELEASE_DIR) \
 		$(BINDIR)/baseq2 \
 		$(BUILD_RELEASE_DIR)/client \
 		$(BUILD_RELEASE_DIR)/renderer \
-		$(BUILD_RELEASE_DIR)/game \
-		$(BUILD_RELEASE_DIR)/config
+		$(BUILD_RELEASE_DIR)/game
 
-	$(MAKE) targets BUILDDIR=$(BUILD_RELEASE_DIR) CFLAGS+="$(RELEASE_CFLAGS) -DKMQUAKE2_VERSION='\"$(VERSION)\"'"
+	$(MAKE) targets BUILDDIR=$(BUILD_RELEASE_DIR) CFLAGS+="$(RELEASE_CFLAGS) -DKMQUAKE2_VERSION='\"$(VERSION)\"'" kmq2config bumf
 
 targets: $(TARGETS)
 
@@ -1167,16 +1171,16 @@ distclean:
 
 tar:
 	@echo Creating tar file ...
-	@tar cvf KMQuake2-$(VERSION).tar quake2
+	@tar cvf tfol-$(VERSION).tar quake2
 	@echo ... Done
 
 gz:
 	@echo Creating gzip compressed file ...
-	@tar czvf KMQuake2-$(VERSION).tar.gz quake2
+	@tar czvf tfol-$(VERSION).tar.gz quake2
 	@echo ... Done
 bz2:
 	@echo Creating bzip2 compressed file ...
-	@tar cjvf KMQuake2-$(VERSION).tar.bz2 quake2
+	@tar cjvf tfol-$(VERSION).tar.bz2 quake2
 	@echo .... Done
 
 install:
