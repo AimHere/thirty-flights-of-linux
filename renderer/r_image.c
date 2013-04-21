@@ -1043,6 +1043,8 @@ typedef struct png_handle_s
 } png_handle_t;
 png_handle_t	*r_png_handle = 0;
 
+
+
 void R_InitializePNGData (void) 
 {
 	long* cvaluep; //ub
@@ -1107,6 +1109,13 @@ void PNGAPI R_ReadPNGData (png_structp png, png_bytep data, png_size_t length)
 		data[i] = r_png_handle->tmpBuf[r_png_handle->tmpi++];    // give pnglib a some more bytes  
 }
 
+void R_png_warning(png_structp png_ptr, png_const_charp error_msg)
+{
+//Suppress png errors, because it annoys users.
+	if (developer->value >= 1)
+		Com_Printf("libpng error: %s\n",error_msg);
+	return;
+}
 
 /*
 ==============
@@ -1124,6 +1133,8 @@ void R_LoadPNG (char *filename, byte **pic, int *width, int *height)
 	*pic = NULL;
 
 	len = FS_LoadFile (filename, (void **)&raw);
+
+
 
 
 	if (!raw)
@@ -1146,6 +1157,8 @@ void R_LoadPNG (char *filename, byte **pic, int *width, int *height)
 		png_destroy_read_struct (&png,&pnginfo,0);
 		return;
 	}
+	
+	png_set_error_fn(png,png_get_error_ptr(png),NULL,R_png_warning);
 
 	png_set_sig_bytes (png, 0/*sizeof( sig )*/);
 

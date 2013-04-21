@@ -99,6 +99,8 @@ Shadows don't look good
 
 Screenshots only work properly in certain aspect ratios
 
+Reports of game being too fast in display menu
+
 TODO
 
 Fullscreen and Resolution changes aren't great at the moent
